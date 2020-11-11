@@ -9,7 +9,7 @@ function LoggedIn() {
     // }, [])
    
     return (
-      <div>
+      <div style={{backgroundColor: '#F5F5DC'}} align="center">
         <h2>Logged in!</h2>
         {/* <h3>{dataFromServer}</h3> */}
       </div>

@@ -18,12 +18,12 @@ function LogInForm({ login, errorMes ,setErrorMes}) {
     }
    
     return (
-      <div>
+      <div style={{backgroundColor: '#F5F5DC'}} align="center">
         <h2>Login</h2>
         <form onChange={onChange} >
           <input placeholder="User Name" id="username" />
           <input placeholder="Password" id="password" />
-          <button onClick={performLogin}>Login</button>
+          <button onClick={performLogin} >Login</button>
         </form>
     <p>{errorMes}</p>
       </div>
