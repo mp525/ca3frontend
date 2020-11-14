@@ -1,28 +1,31 @@
-import logo from "./logo.svg";
 import "./App.css";
 import React, { useEffect, useState } from "react";
 import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
   NavLink,
   useLocation,
-  useParams,
-  Prompt,
-  useRouteMatch,
   useHistory,
 } from "react-router-dom";
 import facade from "./apiFacade";
 import LoggedIn from "./LoggedIn";
 import LoginForm from "./loginForm";
 import Paws from "./paws2.jpg";
+import { Card } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Home from "./Home";
+import User from "./User";
+import Admin from "./Admin";
+import FetchFact from "./FetchFact";
+import CatBreeds from "./CatBreeds";
 
 const paws = {
   backgroundImage: `url(${Paws})`,
 };
 
 function App() {
+  //const [breeds, setBreeds] = useState([]);
   const [errorMes, setErrorMes] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   let history = useHistory();
@@ -41,7 +44,7 @@ function App() {
           setErrorMes(err.message);
         });
       });
-      history.push("/");
+    history.push("/");
   };
 
   const setLoginStatus = (status) => {
@@ -57,15 +60,18 @@ function App() {
           <Home />
         </Route>
         <Route path="/cat-fact">
-          <FetchDefault />
+          <FetchFact />
         </Route>
         <Route path="/page2">
-          <Placeholder />
+          <CatGifs />
         </Route>
-        <Route path="/page3">
+        <Route path="/breeds">
+          <CatBreeds />
+        </Route>
+        <Route path="/user">
           <User />
         </Route>
-        <Route path="/page4">
+        <Route path="/admin">
           <Admin />
         </Route>
         <Route path="/login">
@@ -97,28 +103,6 @@ function App() {
           /> */
 }
 
-function FetchDefault() {
-  const [dto, setDTO] = useState({ name: "...", address: "...", phone: "..." });
-
-  useEffect(() => {
-    facade.fetchDefault(setDTO);
-  }, []);
-
-  return (
-    <div style={{ backgroundColor: "#F5F5DC" }} align="center">
-      <h3>Random fact sent in by {dto.name}!</h3>
-
-      {<p>Did you know that {dto.data}</p>}
-
-      <br />
-      <h4>Persons personal info: </h4>
-      <p>{dto.name}</p>
-      <p>Address: {dto.address}</p>
-      <p>Phone: {dto.phone}</p>
-    </div>
-  );
-}
-
 function Header({ loggedIn, loginMsg }) {
   return (
     <ul className="header" style={paws}>
@@ -134,19 +118,24 @@ function Header({ loggedIn, loginMsg }) {
       </li>
       <li>
         <NavLink activeClassName="active" to="/page2">
-          Page2
+          Cat gifs
+        </NavLink>
+      </li>
+      <li>
+        <NavLink activeClassName="active" to="/breeds">
+          Cat breeds
         </NavLink>
       </li>
       {loggedIn && (
         <>
           <li>
-            <NavLink activeClassName="active" to="/page3">
-              Page 3
+            <NavLink activeClassName="active" to="/user">
+              User page
             </NavLink>
           </li>
           <li>
-            <NavLink exact activeClassName="active" to="/page4">
-              Page 4
+            <NavLink exact activeClassName="active" to="/admin">
+              Admin page
             </NavLink>
           </li>
         </>
@@ -169,132 +158,17 @@ function NoMatch() {
   );
 }
 
-function Home() {
-  return (
-    <div style={{ backgroundColor: "#F5F5DC" }} align="center">
-      <h3>Welcome to Cat-Central!</h3>
-      <p>TODO</p>
-    </div>
-  );
-}
-
 function Placeholder() {
   return <h3>TODO</h3>;
 }
 
-function User() {
-  const [errorUser, setErrorUser] = useState("");
-  const [cats, setCats] = useState([]);
-  const [dataFromServer, setDataFromServer] = useState("");
-  const [cat, setCat] = useState({});
-
-  useEffect(() => {
-    facade
-      .fetchDataUserCats()
-      .then((data) => setCats(data))
-      .catch((err) => {
-        err.fullError.then((err) => {
-          setErrorUser(err.message);
-        });
-      });
-  }, []);
-
-  useEffect(() => {
-    facade
-      .fetchDataUser()
-      .then((data) => setDataFromServer(data.msg))
-      .catch((err) => {
-        err.fullError.then((err) => {
-          setErrorUser(err.message);
-        });
-      });
-  }, []);
-
-  const handleChange = (evt) => {
-    const target = evt.target;
-    const value = target.value;
-    const prop = target.id;
-    const tmpCat = { ...cat, [prop]: value };
-    setCat(tmpCat);
-  };
-
-  const handleSubmit = (evt) => {
-    evt.preventDefault();
-    facade.addCatU(cat);
-  }
-
+function CatGifs() {
   return (
-    <div style={{ backgroundColor: "#F5F5DC" }} align="center">
-      <h1>{dataFromServer}</h1>
-      <h3>List of your cats:</h3>
-      <table>
-        <thead>
-          <tr><th>Name</th><th>Race</th><th>Owner</th></tr>
-        </thead>
-        <tbody>
-        {cats.map((cat) => (
-          <tr>
-            <td>{cat.name}</td><td>{cat.race}</td><td>{cat.owner}</td>
-          </tr>
-        ))}
-        </tbody>
-      </table>
-
-      <p>{errorUser}</p>
-<form onSubmit={handleSubmit}>
-  <h4>Register new cat</h4>
-  <input type="text" id="name" placeholder="name" onChange={handleChange}/>
-  <input type="text" id="race" placeholder="race" onChange={handleChange}/>
-  <input type="submit" value="Send"/>
-</form>
-    </div>
-  );
-}
-
-function Admin() {
-  const [errorAdmin, setErrorAdmin] = useState("");
-  const [dataFromServer, setDataFromServer] = useState("");
-  const [cats, setCats] = useState([]);
-
-  useEffect(() => {
-    facade
-      .fetchDataAdminCats()
-      .then((data) => setCats(data))
-      .catch((err) => {
-        err.fullError.then((err) => {
-          setErrorAdmin(err.message);
-        });
-      });
-  }, []);
-
-  useEffect(() => {
-    facade
-      .fetchDataAdmin()
-      .then((data) => setDataFromServer(data.msg))
-      .catch((err) => {
-        err.fullError.then((err) => {
-          setErrorAdmin(err.message);
-        });
-      });
-  }, []);
-
-  return (
-    <div style={{ backgroundColor: "#F5F5DC" }} align="center">
-      <h3>{dataFromServer}</h3>
-      <h3>List of your cats:</h3>
-      <table>
-        <thead>
-          <tr><th>Name</th><th>Race</th><th>Owner</th></tr>
-        </thead>
-        <tbody>
-        {cats.map((cat) => (
-          <tr>
-            <td>{cat.name}</td><td>{cat.race}</td><td>{cat.owner}</td>
-          </tr>
-        ))}
-        </tbody>
-      </table>
-      <p>{errorAdmin}</p>
+    <div class="col-6" align="center">
+      <Card>
+        <Card.Title>Random cat video</Card.Title>
+        <Card.Img src="http://thecatapi.com/api/images/get?format=src&type=gif" />
+      </Card>
     </div>
   );
 }

@@ -7,6 +7,11 @@ import {
   userCatsEndpoint,
   adminCatsEndpoint,
   addCatUser,
+  addCatAdmin,
+  adminAllCats,
+  deleteCatAdmin,
+  breeds,
+  breedPic
 } from "./settings";
 
 function handleHttpErrors(res) {
@@ -45,9 +50,23 @@ function apiFacade() {
       });
   };
 
+  const isAdmin = () => {
+    const jwtData = getToken().split(".")[1];
+    const decodedJwtJsonData = window.atob(jwtData);
+    const decodedJwtData = JSON.parse(decodedJwtJsonData);
+    const isAdmin = decodedJwtData.roles;
+    return isAdmin;
+  }
+
   const addCatU = (cat) => {
     const options = makeOptions("POST", true, cat);
     return fetch(mainURL + addCatUser, options)
+    .then(handleHttpErrors);
+  }
+
+  const addCatA = (cat) => {
+    const options = makeOptions("POST", true, cat);
+    return fetch(mainURL + addCatAdmin, options)
     .then(handleHttpErrors);
   }
 
@@ -71,6 +90,21 @@ function apiFacade() {
     return fetch(mainURL + adminCatsEndpoint, options).then(handleHttpErrors);
   };
 
+  const fetchAllCats = (setAllCats) => {
+    const options = makeOptions("GET", true); //True add's the token
+    return fetch(mainURL + adminAllCats, options).then(handleHttpErrors)
+    .then((data) => {
+      setAllCats(data);
+    });
+  };
+
+  const deleteCat = (id) => {
+    const options = makeOptions("DELETE", true);
+    const delURL = deleteCatAdmin + "/" + id;
+    return fetch(mainURL + delURL, options)
+    .then(handleHttpErrors);
+  }
+
   const fetchDefault = (callback) => {
     const options = makeOptions("GET");
     return fetch(mainURL + defaultEndpoint, options)
@@ -80,12 +114,30 @@ function apiFacade() {
       });
   };
 
+  const getAllBreeds = (callback) => {
+    const options = makeOptions("GET");
+    return fetch(mainURL + breeds, options)
+    .then(handleHttpErrors)
+    .then(data=>{
+      callback(data);
+    });
+  } 
+
+  const getBreedPicture = (id, callback) => {
+    const breed_id = id;
+    const options = makeOptions("GET", breed_id);  
+    fetch(breedPic, options)
+    .then(handleHttpErrors)
+    .then(data=>{callback(data)});
+  }
+
   const makeOptions = (method, addToken, body) => {
     var opts = {
       method: method,
       headers: {
         "Content-type": "application/json",
         Accept: "application/json",
+        "x-api-key" : "2af8a46b-ad85-4f6f-a101-0ffbaaa3fd7c"
       },
     };
     if (addToken && loggedIn()) {
@@ -108,7 +160,13 @@ function apiFacade() {
     fetchDefault,
     fetchDataUserCats,
     fetchDataAdminCats,
-    addCatU
+    addCatU,
+    addCatA,
+    fetchAllCats,
+    deleteCat,
+    isAdmin,
+    getAllBreeds,
+    getBreedPicture
   };
 }
 const facade = apiFacade();
